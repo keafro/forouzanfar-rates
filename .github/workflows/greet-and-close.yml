@@ -2,9 +2,9 @@ name: Greetings & Closing (Forouzanfar)
 
 on:
   schedule:
-    # 06:00 Tehran = 02:30 UTC
+    # 06:00 تهران ≈ 02:30 UTC
     - cron: '30 2 * * *'
-    # 22:30 Tehran = 19:00 UTC
+    # 22:30 تهران ≈ 19:00 UTC
     - cron: '0 19 * * *'
   workflow_dispatch:
 
