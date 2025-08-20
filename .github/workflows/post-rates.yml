@@ -1,8 +1,10 @@
-name: Post USD rate to Telegram (Forouzanfar)
+name: Post USD & Market Rates to Telegram (Forouzanfar)
 
 on:
   schedule:
-    - cron: '0 6,12,18 * * *'  # 06:00, 12:00, 18:00 UTC ≈ 09:30، 15:30، 21:30 تهران
+    # اجرا 3 بار در روز (UTC): 06:00, 12:00, 18:00
+    # معادل حدوداً تهران: 09:30، 15:30، 21:30
+    - cron: '0 6,12,18 * * *'
   workflow_dispatch:
 
 jobs:
@@ -22,10 +24,23 @@ jobs:
 
       - name: Run poster
         env:
+          # --- Secrets (باید قبلاً در Settings > Secrets ساخته شوند) ---
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           NAVASAN_API_KEY: ${{ secrets.NAVASAN_API_KEY }}
+
+          # --- تنظیمات پیام (دلخواه) ---
           TELEGRAM_CHANNEL: '@Foorouzanfar'
           TIMEZONE: 'Asia/Tehran'
-          MESSAGE_HEADER: '📣 صرافی فروزانفر — بروزرسانی دلار آزاد'
+          MESSAGE_HEADER: '📣 صرافی فروزانفر — بروزرسانی نرخ‌ها'
           SOURCE_LABEL: 'نوسان'
+          HASHTAGS: '#دلار #یورو #سکه #طلا #حواله #صرافی_فروزانفر'
+          CHANNEL_HANDLE: '@Foorouzanfar'
+
+          # دسته‌ها: cash = اسکناس نقدی، remittance = حواله،
+          # melli = صرافی ملی، goldcoin = سکه/طلا، crypto = رمزارز
+          INCLUDE_CATEGORIES: 'cash,remittance,melli,goldcoin,crypto'
+
+          # اگر بخواهی فقط وقتی تغییر دلار فروش تهران زیاد بود پست بده:
+          # مقدار را به تومان بگذار (مثلا '300'). صفر یعنی همیشه ارسال.
+          MIN_CHANGE_TOMAN: '0'
         run: python rates_cron.py
