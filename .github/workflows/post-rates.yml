@@ -1,9 +1,9 @@
-name: Post USD & Market Rates to Telegram (Forouzanfar)
+name: Post USD & Market Rates (Forouzanfar)
 
 on:
   schedule:
     # اجرا 3 بار در روز (UTC): 06:00, 12:00, 18:00
-    # معادل حدوداً تهران: 09:30، 15:30، 21:30
+    # معادل تهران (UTC+3:30): 09:30، 15:30، 21:30
     - cron: '0 6,12,18 * * *'
   workflow_dispatch:
 
@@ -11,20 +11,19 @@ jobs:
   post:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install deps
-        run: pip install requests
+        run: pip install requests jdatetime hijri-converter
 
-      - name: Run poster
+      - name: Run poster (rates)
         env:
-          # --- Secrets (باید قبلاً در Settings > Secrets ساخته شوند) ---
+          MODE: 'rates'
+          # --- Secrets: حتماً در Settings > Secrets ساخته باشی ---
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           NAVASAN_API_KEY: ${{ secrets.NAVASAN_API_KEY }}
 
@@ -36,11 +35,12 @@ jobs:
           HASHTAGS: '#دلار #یورو #سکه #طلا #حواله #صرافی_فروزانفر'
           CHANNEL_HANDLE: '@Foorouzanfar'
 
-          # دسته‌ها: cash = اسکناس نقدی، remittance = حواله،
-          # melli = صرافی ملی، goldcoin = سکه/طلا، crypto = رمزارز
+          # دسته‌ها: cash=اسکناس، remittance=حواله، melli=ملی، goldcoin=سکه/طلا، crypto=رمزارز
           INCLUDE_CATEGORIES: 'cash,remittance,melli,goldcoin,crypto'
 
-          # اگر بخواهی فقط وقتی تغییر دلار فروش تهران زیاد بود پست بده:
-          # مقدار را به تومان بگذار (مثلا '300'). صفر یعنی همیشه ارسال.
+          # هر دسته حداکثر چند ردیف نشان دهد (برای شلوغ نشدن پیام)
+          TOP_N_PER_CATEGORY: '4'
+
+          # اگر تغییر دلار فروش تهران کمتر از این مقدار (تومان) بود، ارسال نکند. صفر = همیشه ارسال.
           MIN_CHANGE_TOMAN: '0'
         run: python rates_cron.py
