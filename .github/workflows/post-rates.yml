@@ -29,7 +29,7 @@ jobs:
       - name: Install deps
         run: pip install requests
 
-      - name: Run poster
+           - name: Run poster
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           NAVASAN_API_KEY: ${{ secrets.NAVASAN_API_KEY }}
@@ -37,4 +37,7 @@ jobs:
           TIMEZONE: "Asia/Tehran"
           MESSAGE_HEADER: "📣 صرافی فروزانفر — بروزرسانی دلار آزاد"
           SOURCE_LABEL: "نوسان"
+          HASHTAGS: "#دلار #نرخ_دلار #صرافی_فروزانفر"
+          CHANNEL_HANDLE: "@Foorouzanfar"
+          MIN_CHANGE_TOMAN: "0"   # مثلا اگر بذاری 300 => فقط وقتی تغییر >= 300 تومن بود، پست بده
         run: python rates_cron.py
