@@ -1,0 +1,30 @@
+name: Post Rates — Saladinir
+
+on:
+  schedule:
+    # 3 بار در روز به وقت UTC: 06:00, 11:00, 15:00
+    # معادل تهران تقریباً: 09:30، 14:30، 18:30
+    - cron: '0 6,11,15 * * *'
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install requests jdatetime
+
+      - name: Send rates (3x/day)
+        env:
+          MODE: 'rates'
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL: '@Saladinir'
+          NAVASAN_API_KEY: ${{ secrets.NAVASAN_API_KEY }}
+          TIMEZONE: 'Asia/Tehran'
+        run: python saladinir_bot.py
