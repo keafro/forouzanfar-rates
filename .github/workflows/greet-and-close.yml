@@ -1,0 +1,46 @@
+name: Greetings & Goodnight — Saladinir
+
+on:
+  schedule:
+    # 06:00 تهران ≈ 02:30 UTC — صبح بخیر
+    - cron: '30 2 * * *'
+    # 22:30 تهران ≈ 19:00 UTC — شب بخیر
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+
+jobs:
+  greet:
+    if: github.event.schedule == '30 2 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install requests jdatetime
+      - name: Morning greeting (Tehran 06:00)
+        env:
+          MODE: 'greet'
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL: '@Saladinir'
+          TIMEZONE: 'Asia/Tehran'
+        run: python saladinir_bot.py
+
+  close:
+    if: github.event.schedule == '0 19 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install requests jdatetime
+      - name: Night closing (Tehran 22:30)
+        env:
+          MODE: 'close'
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL: '@Saladinir'
+          TIMEZONE: 'Asia/Tehran'
+        run: python saladinir_bot.py
