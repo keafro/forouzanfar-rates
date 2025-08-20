@@ -1,0 +1,40 @@
+name: Post USD rate to Telegram (Forouzanfar)
+
+on:
+  schedule:
+    # 06:00, 12:00, 18:00 UTC ≈ حدود 09:30، 15:30، 21:30 تهران
+    - cron: "0 6,12,18 * * *"
+  workflow_dispatch: {}  # دکمه Run workflow برای تست دستی
+
+permissions:
+  contents: read
+
+concurrency:
+  group: post-usd-forouzanfar
+  cancel-in-progress: true
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: Run poster
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          NAVASAN_API_KEY: ${{ secrets.NAVASAN_API_KEY }}
+          TELEGRAM_CHANNEL: "@Foorouzanfar"
+          TIMEZONE: "Asia/Tehran"
+          MESSAGE_HEADER: "📣 صرافی فروزانفر — بروزرسانی دلار آزاد"
+          SOURCE_LABEL: "نوسان"
+        run: python rates_cron.py
